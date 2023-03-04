@@ -13,7 +13,6 @@ type-check: $(VENV) $(PY_FILES)
 	$(PYTHON) -m mypy \
 		--install-types \
 		--non-interactive \
-		--ignore-missing-imports \
 		--pretty \
 		$(PY_FILES)
 
