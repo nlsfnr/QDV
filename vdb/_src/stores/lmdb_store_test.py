@@ -5,9 +5,15 @@ import numpy as np
 import pytest
 from pytest_benchmark.fixture import BenchmarkFixture as Benchmark  # type: ignore
 
+from vdb._src.common import MissingDependency
 from vdb._src.types import ArrayLike
 
-from .lmdb import LMDBStore
+from .lmdb_store import LMDBStore, lmdb
+
+_skip_if_lmdb_not_installed = pytest.mark.skipif(
+    isinstance(lmdb, MissingDependency),
+    reason="LMDB not installed",
+)
 
 
 @pytest.fixture
@@ -36,6 +42,7 @@ _VALID_ID_EMBEDDING_PAIRS = [
 ]
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
 def test_store(
     store: LMDBStore,
@@ -45,6 +52,7 @@ def test_store(
     store.store(ids=ids, embeddings=embeddings)
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize(
     "ids, embeddings, error_type, match",
     (
@@ -97,6 +105,7 @@ def test_store_invalid_inputs(
         store.store(ids=ids, embeddings=embeddings)
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
 def test_store_retrieve(
     store: LMDBStore,
@@ -110,6 +119,7 @@ def test_store_retrieve(
     assert (retrieved == embeddings).all()
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize(
     "query_ids, ids, embeddings, error_type, match",
     [
@@ -132,6 +142,7 @@ def test_store_retrieve_invalid_ids(
         store.retrieve(ids=query_ids)
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
 def test_store_keys(
     store: LMDBStore, ids: Sequence[str], embeddings: ArrayLike
@@ -140,6 +151,7 @@ def test_store_keys(
     assert set(store.keys()) == set(list(ids))
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize(
     "delete_ids, ids, embeddings",
     [
@@ -166,6 +178,7 @@ def test_store_delete(
         store.retrieve(ids=delete_ids)
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
 def test_store_iter(
     store: LMDBStore,
@@ -182,6 +195,7 @@ def test_store_iter(
     assert set(visited_ids) == set(ids) == set(store.keys())
 
 
+@_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
 def test_store_len(
     store: LMDBStore,
@@ -192,6 +206,7 @@ def test_store_len(
     assert len(store) == len(ids)
 
 
+@_skip_if_lmdb_not_installed
 def test_lmdb_retrieve_bench(store: LMDBStore, benchmark: Benchmark) -> None:
     ids = [str(i) for i in range(10_000)]
     generator = np.random.default_rng(0)

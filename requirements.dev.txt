@@ -1,3 +1,8 @@
+# Install all optional dependencies
+openai
+tiktoken
+lmdb
+
 mypy
 flake8
 black

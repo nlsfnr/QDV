@@ -1,6 +1,16 @@
 from __future__ import annotations
 
-from typing import Iterable, Iterator, Protocol, Sequence, Sized, Tuple, TypeVar, Union
+from typing import (
+    Generic,
+    Iterable,
+    Iterator,
+    Protocol,
+    Sequence,
+    Sized,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 
@@ -47,4 +57,12 @@ class Store(Protocol):
         ...
 
     def __len__(self) -> int:
+        ...
+
+
+ItemT = TypeVar("ItemT", contravariant=True)
+
+
+class Embedder(Protocol, Generic[ItemT]):
+    def __call__(self, items: Sequence[ItemT]) -> np.ndarray:
         ...

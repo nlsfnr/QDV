@@ -3,11 +3,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterator, List, Sequence, Tuple
 
-import lmdb  # type: ignore
 import numpy as np
 
-from vdb._src.logging import get_logger
+from vdb._src.common import MissingDependency, get_logger
 from vdb._src.types import ArrayLike, Store
+
+try:
+    import lmdb  # type: ignore
+except ModuleNotFoundError:
+    lmdb = MissingDependency("LMDB", "lmdb")  # type: ignore
 
 logger = get_logger()
 

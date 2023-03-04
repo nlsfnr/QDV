@@ -1,3 +1,3 @@
-from .lmdb import LMDBStore
+from .lmdb_store import LMDBStore
 
 __all__ = ("LMDBStore",)
