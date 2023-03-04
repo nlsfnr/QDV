@@ -1,10 +1,15 @@
-from ._src.embedders import OpenAIEmbedder
+from ._src.embedders import CLIPImageEmbedder, CLIPTextEmbedder, OpenAIEmbedder
 from ._src.stores import LMDBStore
-from ._src.types import Embedder, Store
+from ._src.types import Embedder, Store, Index
+from ._src.indices import BruteForceIndex
 
 __all__ = (
-    "Store",
-    "LMDBStore",
+    "CLIPImageEmbedder",
+    "CLIPTextEmbedder",
     "Embedder",
+    "LMDBStore",
     "OpenAIEmbedder",
+    "Store",
+    "Index",
+    "BruteForceIndex",
 )

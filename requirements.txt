@@ -8,3 +8,8 @@ numpy
 # For the OpenAIEmbedder
 # openai
 # tiktoken
+
+# For the CLIPTextEncoder and CLIPImageEncoder
+# torch
+# transformers
+# pillow

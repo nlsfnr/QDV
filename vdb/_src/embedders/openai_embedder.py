@@ -16,6 +16,7 @@ except ModuleNotFoundError:
 
 _DEFAULT_MODEL_NAME = "text-embedding-ada-002"
 _DEFAULT_TOKENIZER_NAME = "cl100k_base"
+_DEFAULT_EMBEDDING_DIM = 1536
 _DEFAULT_MAX_TOKENS = 8191
 
 
@@ -26,6 +27,7 @@ class OpenAIEmbedder(Embedder[str]):
         model_name: str = _DEFAULT_MODEL_NAME,
         tokenizer_name: Optional[str] = _DEFAULT_TOKENIZER_NAME,
         max_tokens: Optional[int] = _DEFAULT_MAX_TOKENS,
+        embedding_dim: int = _DEFAULT_EMBEDDING_DIM,
         create_fn: Callable[..., Dict[str, Any]] = openai.Embedding.create,
     ) -> None:
         self.api_key = api_key
@@ -38,6 +40,11 @@ class OpenAIEmbedder(Embedder[str]):
                 raise ValueError("Cannot specify max_tokens without tokenizer_name")
         self.max_tokens = max_tokens
         self.create_fn = create_fn
+        self._embedding_dim = embedding_dim
+
+    @property
+    def dim(self) -> int:
+        return self._embedding_dim
 
     def __call__(self, items: Sequence[str]) -> np.ndarray:
         """Embeds a sequence of strings.

@@ -25,6 +25,7 @@ class LMDBStore(Store):
     def __init__(
         self,
         path: Path,
+        embedding_dim: int,
         map_size: int = _DEFAULT_MAP_SIZE,
     ) -> None:
         """Initialize the store.
@@ -44,6 +45,12 @@ class LMDBStore(Store):
         self.environment = lmdb.Environment(
             str(path), readahead=False, meminit=False, subdir=True, map_size=map_size
         )
+        self._embedding_dim = embedding_dim
+
+    @property
+    def dim(self) -> int:
+        """The dimension of the embeddings."""
+        return self._embedding_dim
 
     def keys(self) -> Iterator[str]:
         """The ids of the embeddings in the store."""
@@ -143,8 +150,8 @@ class LMDBStore(Store):
         self,
         embeddings: ArrayLike,
     ) -> np.ndarray:
-        if len(embeddings) == 0:
-            return np.empty(shape=(0, 0), dtype=_DEFAULT_DTYPE)
+        if isinstance(embeddings, list) and len(embeddings) == 0:
+            return np.empty(shape=(0, self.dim), dtype=_DEFAULT_DTYPE)
         if not isinstance(embeddings, np.ndarray):
             embeddings = np.asarray(embeddings, dtype=_DEFAULT_DTYPE)
         if not np.issubdtype(embeddings.dtype, np.float32):
@@ -154,6 +161,11 @@ class LMDBStore(Store):
         if embeddings.ndim != 2:
             raise ValueError(
                 f"Expected embeddings to be 2-dimensional, got shape {embeddings.shape}"
+            )
+        if embeddings.shape[1] != self.dim:
+            raise ValueError(
+                f"Expected embeddings to have dimension {self.dim}, "
+                f"got shape {embeddings.shape}"
             )
         return embeddings
 

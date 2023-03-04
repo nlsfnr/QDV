@@ -1,6 +1,8 @@
 import logging
 from typing import Any
 
+import numpy as np
+
 
 def get_logger() -> logging.Logger:
     """Get the logger for the package.

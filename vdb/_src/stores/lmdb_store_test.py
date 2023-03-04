@@ -18,17 +18,17 @@ _skip_if_lmdb_not_installed = pytest.mark.skipif(
 
 @pytest.fixture
 def store(tmpdir: Path) -> LMDBStore:
-    return LMDBStore(path=Path(tmpdir))
+    return LMDBStore(path=Path(tmpdir), embedding_dim=3)
 
 
 _VALID_ID_EMBEDDING_PAIRS = [
     ([], []),
     (["a", "b", "c"], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]),
     (["a", "b", "c"], [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]),
-    (("a"), [[1, 2, 3]]),
-    (("a"), [[]]),
+    (["a"], [[1, 2, 3]]),
+    ([], np.empty((0, 3), dtype=np.float32)),
     (
-        ("a", "b", "c"),
+        ["a", "b", "c"],
         np.asarray(
             [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]], dtype=np.float32
         ),
@@ -116,7 +116,7 @@ def test_store_retrieve(
     retrieved = store.retrieve(ids=ids)
     assert isinstance(retrieved, np.ndarray)
     assert retrieved.ndim == 2
-    assert (retrieved == embeddings).all()
+    assert retrieved.shape[0] == 0 or (retrieved == embeddings).all()
 
 
 @_skip_if_lmdb_not_installed
@@ -207,7 +207,8 @@ def test_store_len(
 
 
 @_skip_if_lmdb_not_installed
-def test_lmdb_retrieve_bench(store: LMDBStore, benchmark: Benchmark) -> None:
+def test_lmdb_retrieve_bench(tmpdir: Path, benchmark: Benchmark) -> None:
+    store = LMDBStore(path=Path(tmpdir), embedding_dim=512)
     ids = [str(i) for i in range(10_000)]
     generator = np.random.default_rng(0)
     embeddings = generator.random((10_000, 512)).astype(np.float32)

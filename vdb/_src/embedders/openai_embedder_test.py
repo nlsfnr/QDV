@@ -36,5 +36,5 @@ def test_openai_embedder(embedder: OpenAIEmbedder) -> None:
 
 @_skip_if_openai_not_installed
 def test_openai_embedder_input_too_long(embedder: OpenAIEmbedder) -> None:
-    with pytest.raises(ValueError, match="contain at most \d+ tokens"):
+    with pytest.raises(ValueError, match="contain at most [0-9]+ tokens"):
         embedder(["a b c " * 10000])

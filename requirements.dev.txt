@@ -1,7 +1,15 @@
 # Install all optional dependencies
 openai
 tiktoken
+
 lmdb
+
+torch
+transformers
+pillow
+
+# For the examples
+click
 
 mypy
 flake8

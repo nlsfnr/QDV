@@ -34,6 +34,10 @@ class Store(Protocol):
     def keys(self) -> Iterator[str]:
         ...
 
+    @property
+    def dim(self) -> int:
+        ...
+
     def store(
         self: StoreT,
         ids: Sequence[str],
@@ -60,9 +64,26 @@ class Store(Protocol):
         ...
 
 
+class Index(Protocol):
+    @property
+    def dim(self) -> int:
+        ...
+
+    def query(
+        self,
+        embeddings: ArrayLike,
+        k: int,
+    ) -> Tuple[Sequence[Sequence[str]], np.ndarray]:
+        ...
+
+
 ItemT = TypeVar("ItemT", contravariant=True)
 
 
 class Embedder(Protocol, Generic[ItemT]):
+    @property
+    def dim(self) -> int:
+        ...
+
     def __call__(self, items: Sequence[ItemT]) -> np.ndarray:
         ...
