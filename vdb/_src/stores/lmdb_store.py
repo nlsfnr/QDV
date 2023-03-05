@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Iterator, List, Sequence, Tuple
 
 import numpy as np
+import numpy.typing as npt
 
 from vdb._src.common import MissingDependency, get_logger
 from vdb._src.types import ArrayLike, Store
@@ -27,6 +28,7 @@ class LMDBStore(Store):
         path: Path,
         embedding_dim: int,
         map_size: int = _DEFAULT_MAP_SIZE,
+        dtype: npt.DTypeLike = _DEFAULT_DTYPE,
     ) -> None:
         """Initialize the store.
 
@@ -45,6 +47,7 @@ class LMDBStore(Store):
         self.environment = lmdb.Environment(
             str(path), readahead=False, meminit=False, subdir=True, map_size=map_size
         )
+        self.dtype = np.dtype(dtype)
         self._embedding_dim = embedding_dim
 
     @property
@@ -95,14 +98,14 @@ class LMDBStore(Store):
         """
         ids = self._validate_ids(ids)
         if len(ids) == 0:
-            return np.empty(shape=(0, 0), dtype=_DEFAULT_DTYPE)
+            return np.empty(shape=(0, 0), dtype=self.dtype)
         with self.environment.begin(write=False) as txn:
             embeddings = []
             for id in ids:
                 result = txn.get(id.encode())
                 if result is None:
                     raise KeyError(f"Key not found: {id}")
-                embeddings.append(np.frombuffer(result, dtype=np.float32))
+                embeddings.append(np.frombuffer(result, dtype=self.dtype))
         return np.asarray(embeddings)
 
     def delete(
@@ -129,7 +132,7 @@ class LMDBStore(Store):
         """Iterate over the ids and embeddings in the store."""
         with self.environment.begin(write=False) as txn:
             for id, value in txn.cursor():
-                yield id.decode(), np.frombuffer(value, dtype=np.float32)
+                yield id.decode(), np.frombuffer(value, dtype=self.dtype)
 
     def __len__(self) -> int:
         """The number of embeddings in the store."""
@@ -151,12 +154,12 @@ class LMDBStore(Store):
         embeddings: ArrayLike,
     ) -> np.ndarray:
         if isinstance(embeddings, list) and len(embeddings) == 0:
-            return np.empty(shape=(0, self.dim), dtype=_DEFAULT_DTYPE)
+            return np.empty(shape=(0, self.dim), dtype=self.dtype)
         if not isinstance(embeddings, np.ndarray):
-            embeddings = np.asarray(embeddings, dtype=_DEFAULT_DTYPE)
-        if not np.issubdtype(embeddings.dtype, np.float32):
+            embeddings = np.asarray(embeddings, dtype=self.dtype)
+        if not np.issubdtype(embeddings.dtype, self.dtype):
             raise TypeError(
-                f"Expected embeddings to dtype np.float32, got dtype {embeddings.dtype}"
+                f"Expected embeddings with dtype {self.dtype}, got {embeddings.dtype}"
             )
         if embeddings.ndim != 2:
             raise ValueError(

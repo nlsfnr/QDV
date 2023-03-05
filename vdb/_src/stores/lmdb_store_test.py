@@ -18,7 +18,7 @@ _skip_if_lmdb_not_installed = pytest.mark.skipif(
 
 @pytest.fixture
 def store(tmpdir: Path) -> LMDBStore:
-    return LMDBStore(path=Path(tmpdir), embedding_dim=3)
+    return LMDBStore(path=Path(tmpdir), embedding_dim=3, dtype=np.float32)
 
 
 _VALID_ID_EMBEDDING_PAIRS = [
@@ -90,7 +90,7 @@ def test_store(
             ["a"],
             np.asarray([[1, 2, 3]], dtype=np.int32),
             TypeError,
-            "embedding.*dtype np.float32",
+            "embedding.*dtype float32",
         ),
     ),
 )
