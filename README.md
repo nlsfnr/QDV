@@ -1,4 +1,4 @@
-# VDB - Vector Database
+# QDV - Quick and Dirty Vectors
 
-A minimal database for storing and querying embeddings for machine learning
-applications.
+A library for computing, storing and querying embeddings, focused on rapid
+prototyping.

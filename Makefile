@@ -1,12 +1,12 @@
 VENV=.venv
 PYTHON=$(VENV)/bin/python3
-DOCKER=vdb
+DOCKER=qdv
 PIP_FREEZE=.requirements.freeze.txt
-TEST_DIR=vdb/ examples/
-PY_FILES=vdb/ examples/
+TEST_DIR=qdv/ examples/
+PY_FILES=qdv/ examples/
 
 .PHONY: ci
-ci: $(PY_FILES) py-deps type-check format test
+ci: $(PY_FILES) py-deps type-check format lint test
 
 .PHONY: type-check
 type-check: $(VENV) $(PY_FILES)
@@ -21,6 +21,9 @@ format: $(VENV) $(PY_FILES)
 	$(PYTHON) -m isort $(PY_FILES)
 	$(PYTHON) -m black $(PY_FILES)
 
+.PHONY: lint
+lint: $(VENV) $(PY_FILES)
+	$(PYTHON) -m flake8 $(PY_FILES)
 
 .PHONY: test
 test: $(VENV) $(PY_FILES)

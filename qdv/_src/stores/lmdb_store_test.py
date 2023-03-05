@@ -5,8 +5,8 @@ import numpy as np
 import pytest
 from pytest_benchmark.fixture import BenchmarkFixture as Benchmark  # type: ignore
 
-from vdb._src.common import MissingDependency
-from vdb._src.types import ArrayLike
+from qdv._src.common import MissingDependency
+from qdv._src.types import ArrayLike
 
 from .lmdb_store import LMDBStore, lmdb
 

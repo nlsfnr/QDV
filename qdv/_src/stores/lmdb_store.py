@@ -6,8 +6,8 @@ from typing import Iterator, List, Sequence, Tuple
 import numpy as np
 import numpy.typing as npt
 
-from vdb._src.common import MissingDependency, get_logger
-from vdb._src.types import ArrayLike, Store
+from qdv._src.common import MissingDependency, get_logger
+from qdv._src.types import ArrayLike, Store
 
 try:
     import lmdb  # type: ignore
@@ -181,6 +181,7 @@ class LMDBStore(Store):
         embeddings = self._validate_embeddings(embeddings)
         if len(ids) != embeddings.shape[0]:
             raise ValueError(
-                f"Expected ids and embeddings to have the same length, got {len(ids)} and {embeddings.shape[0]}"
+                f"Expected ids and embeddings to have the same length, got {len(ids)} "
+                f"and {embeddings.shape[0]}"
             )
         return ids, embeddings

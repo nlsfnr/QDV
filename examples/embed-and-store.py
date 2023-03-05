@@ -6,7 +6,7 @@ import click
 
 sys.path.append(".")
 
-import vdb
+import qdv  # noqa: E402
 
 
 @click.group()
@@ -23,8 +23,8 @@ def cli_add(
     text: str,
     path: Path,
 ) -> None:
-    embedder = vdb.CLIPTextEmbedder()
-    store = vdb.LMDBStore(path, embedding_dim=embedder.dim)
+    embedder = qdv.CLIPTextEmbedder()
+    store = qdv.LMDBStore(path, embedding_dim=embedder.dim)
     store.store([id], embedder([text]))
 
 
@@ -37,9 +37,9 @@ def cli_query(
     path: Path,
     topk: int,
 ) -> None:
-    embedder = vdb.CLIPTextEmbedder()
-    store = vdb.LMDBStore(path, embedding_dim=embedder.dim)
-    index = vdb.LinearSearchIndex(store)
+    embedder = qdv.CLIPTextEmbedder()
+    store = qdv.LMDBStore(path, embedding_dim=embedder.dim)
+    index = qdv.LinearSearchIndex(store)
     ids, distances = index.query(embedder([text]), topk)
     print(ids, distances)
 

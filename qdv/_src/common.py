@@ -1,8 +1,6 @@
 import logging
 from typing import Any
 
-import numpy as np
-
 
 def get_logger() -> logging.Logger:
     """Get the logger for the package.
@@ -10,7 +8,7 @@ def get_logger() -> logging.Logger:
     Returns:
         The logger.
     """
-    return logging.getLogger("VDB")
+    return logging.getLogger("QDV")
 
 
 class MissingDependency:

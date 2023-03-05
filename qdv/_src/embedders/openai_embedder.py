@@ -2,8 +2,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import numpy as np
 
-from vdb._src.common import MissingDependency
-from vdb._src.types import Embedder
+from qdv._src.common import MissingDependency
+from qdv._src.types import Embedder
 
 try:
     import openai  # type: ignore

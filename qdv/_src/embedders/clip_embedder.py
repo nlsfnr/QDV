@@ -2,8 +2,8 @@ from typing import Sequence
 
 import numpy as np
 
-from vdb._src.common import MissingDependency
-from vdb._src.types import ArrayLike, Embedder
+from qdv._src.common import MissingDependency
+from qdv._src.types import ArrayLike, Embedder
 
 try:
     import transformers  # type: ignore

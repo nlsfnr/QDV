@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from vdb import LMDBStore
+from qdv import LMDBStore
 
 from .linear_search_index import LinearSearchIndex
 

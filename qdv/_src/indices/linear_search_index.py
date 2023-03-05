@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from vdb._src.types import ArrayLike, Index, Store
+from qdv._src.types import ArrayLike, Index, Store
 
 _DEFAULT_DTYPE = np.float32
 _DEFAULT_METRIC = "euclidean"

@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from vdb._src.common import MissingDependency
+from qdv._src.common import MissingDependency
 
 from .openai_embedder import OpenAIEmbedder, openai
 
