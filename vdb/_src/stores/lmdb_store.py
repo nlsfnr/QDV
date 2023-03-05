@@ -52,10 +52,10 @@ class LMDBStore(Store):
         """The dimension of the embeddings."""
         return self._embedding_dim
 
-    def keys(self) -> Iterator[str]:
+    def ids(self) -> Iterator[str]:
         """The ids of the embeddings in the store."""
         with self.environment.begin(write=False) as txn:
-            yield from (key.decode() for key, _ in txn.cursor())
+            yield from (id.decode() for id, _ in txn.cursor())
 
     def store(
         self,
@@ -128,8 +128,8 @@ class LMDBStore(Store):
     def __iter__(self) -> Iterator[Tuple[str, np.ndarray]]:
         """Iterate over the ids and embeddings in the store."""
         with self.environment.begin(write=False) as txn:
-            for key, value in txn.cursor():
-                yield key.decode(), np.frombuffer(value, dtype=np.float32)
+            for id, value in txn.cursor():
+                yield id.decode(), np.frombuffer(value, dtype=np.float32)
 
     def __len__(self) -> int:
         """The number of embeddings in the store."""

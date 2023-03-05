@@ -34,10 +34,10 @@ class BruteForceIndex(Index):
         for q in self._validate_embeddings(embeddings):
             kvs = iter(self.store)
             kvs1, kvs2 = tee(kvs)
-            keys, vectors = (k for k, _ in kvs1), (v for _, v in kvs2)
+            ids, vectors = (id for id, _ in kvs1), (v for _, v in kvs2)
             distances = (self._distance(v, q) for v in vectors)
-            kds = zip(keys, distances)
-            top_k = heapq.nsmallest(k, kds, key=lambda x: x[1])
+            pairs = zip(ids, distances)
+            top_k = heapq.nsmallest(k, pairs, key=lambda x: x[1])
             top_ids, top_distances = zip(*top_k)
             all_ids.append(list(top_ids))
             all_distances.append(top_distances)

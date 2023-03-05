@@ -144,11 +144,9 @@ def test_store_retrieve_invalid_ids(
 
 @_skip_if_lmdb_not_installed
 @pytest.mark.parametrize("ids, embeddings", _VALID_ID_EMBEDDING_PAIRS)
-def test_store_keys(
-    store: LMDBStore, ids: Sequence[str], embeddings: ArrayLike
-) -> None:
+def test_store_ids(store: LMDBStore, ids: Sequence[str], embeddings: ArrayLike) -> None:
     store.store(ids=ids, embeddings=embeddings)
-    assert set(store.keys()) == set(list(ids))
+    assert set(store.ids()) == set(list(ids))
 
 
 @_skip_if_lmdb_not_installed
@@ -173,7 +171,7 @@ def test_store_delete(
 ) -> None:
     store.store(ids=ids, embeddings=embeddings)
     store.delete(ids=delete_ids)
-    assert set(store.keys()) == set(ids) - set(delete_ids)
+    assert set(store.ids()) == set(ids) - set(delete_ids)
     with pytest.raises(KeyError, match="not found: a"):
         store.retrieve(ids=delete_ids)
 
@@ -191,8 +189,8 @@ def test_store_iter(
         assert id in ids
         assert (embedding == store.retrieve(ids=[id])[0]).all()
         visited_ids.append(id)
-    assert len(visited_ids) == len(ids) == len(list(store.keys()))
-    assert set(visited_ids) == set(ids) == set(store.keys())
+    assert len(visited_ids) == len(ids) == len(list(store.ids()))
+    assert set(visited_ids) == set(ids) == set(store.ids())
 
 
 @_skip_if_lmdb_not_installed

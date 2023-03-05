@@ -31,7 +31,7 @@ StoreT = TypeVar("StoreT", bound="Store")
 
 
 class Store(Protocol):
-    def keys(self) -> Iterator[str]:
+    def ids(self) -> Iterator[str]:
         ...
 
     @property

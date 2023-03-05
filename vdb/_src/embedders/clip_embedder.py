@@ -7,6 +7,7 @@ from vdb._src.types import ArrayLike, Embedder
 
 try:
     import transformers  # type: ignore
+
     transformers.logging.set_verbosity_error()
 except ModuleNotFoundError:
     transformers = MissingDependency("Transformers", "transformers")  # type: ignore
