@@ -5,7 +5,7 @@ import pytest
 
 from vdb import LMDBStore
 
-from .brute_force_index import BruteForceIndex
+from .linear_search_index import LinearSearchIndex
 
 
 @pytest.fixture
@@ -18,11 +18,11 @@ def store(tmpdir: Path):
 
 
 @pytest.fixture
-def index(store: LMDBStore) -> BruteForceIndex:
-    return BruteForceIndex(store)
+def index(store: LMDBStore) -> LinearSearchIndex:
+    return LinearSearchIndex(store)
 
 
-def test_query(index: BruteForceIndex):
+def test_query(index: LinearSearchIndex):
     generator = np.random.default_rng(0)
     q = generator.random((1, 16), dtype=np.float32)
     ids, distances = index.query(q, 2)

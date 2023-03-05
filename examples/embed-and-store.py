@@ -21,8 +21,7 @@ def cli_add(id: str,
             path: Path,
             ) -> None:
     embedder = vdb.CLIPTextEmbedder()
-    store = vdb.LMDBStore(path,
-                          embedding_dim=embedder.dim)
+    store = vdb.LMDBStore(path, embedding_dim=embedder.dim)
     store.store([id], embedder([text]))
 
 
@@ -35,9 +34,8 @@ def cli_query(text: str,
               topk: int,
               ) -> None:
     embedder = vdb.CLIPTextEmbedder()
-    store = vdb.LMDBStore(path,
-                          embedding_dim=embedder.dim)
-    index = vdb.BruteForceIndex(store)
+    store = vdb.LMDBStore(path, embedding_dim=embedder.dim)
+    index = vdb.LinearSearchIndex(store)
     ids, distances = index.query(embedder([text]), topk)
     print(ids, distances)
 

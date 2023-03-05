@@ -1,5 +1,4 @@
 import heapq
-from functools import partial
 from itertools import tee
 from typing import List, Tuple
 
@@ -11,7 +10,7 @@ _DEFAULT_DTYPE = np.float32
 _DEFAULT_METRIC = "euclidean"
 
 
-class BruteForceIndex(Index):
+class LinearSearchIndex(Index):
     def __init__(
         self,
         store: Store,

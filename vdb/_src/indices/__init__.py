@@ -1,3 +1,3 @@
-from .brute_force_index import BruteForceIndex
+from .linear_search_index import LinearSearchIndex
 
-__all__ = ("BruteForceIndex",)
+__all__ = ("LinearSearchIndex",)

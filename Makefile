@@ -2,8 +2,8 @@ VENV=.venv
 PYTHON=$(VENV)/bin/python3
 DOCKER=vdb
 PIP_FREEZE=.requirements.freeze.txt
-TEST_DIR=vdb/
-PY_FILES=vdb/
+TEST_DIR=vdb/ examples/
+PY_FILES=vdb/ examples/
 
 .PHONY: ci
 ci: $(PY_FILES) py-deps type-check format test
