@@ -8,6 +8,8 @@ torch
 transformers
 pillow
 
+pynndescent
+
 # For the examples
 click
 

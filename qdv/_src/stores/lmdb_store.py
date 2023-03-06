@@ -41,7 +41,7 @@ class LMDBStore(Store):
             path.mkdir(parents=True)
         else:
             if not path.is_dir():
-                raise ValueError(f"Expected path to be a directory: {path}")
+                raise NotADirectoryError(f"Expected path to be a directory: {path}")
             logger.info(f"Opening existing LMDB database at {path}")
         self.path = path
         self.environment = lmdb.Environment(

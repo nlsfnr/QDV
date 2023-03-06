@@ -1,15 +1,18 @@
 numpy
 
-# The dependencies below are opt-in
+## The dependencies below are opt-in
 
-# For the LMDBStore
+## For the LMDBStore
 # lmdb
 
-# For the OpenAIEmbedder
+## For the OpenAIEmbedder
 # openai
 # tiktoken
 
-# For the CLIPTextEncoder and CLIPImageEncoder
+## For the CLIPTextEncoder and CLIPImageEncoder
 # torch
 # transformers
 # pillow
+
+## For KNNIndexer
+# pynndescent
