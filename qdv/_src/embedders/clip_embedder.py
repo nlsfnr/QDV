@@ -1,20 +1,18 @@
-from typing import Sequence
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from qdv._src.common import MissingDependency
+from qdv._src.common import try_import
 from qdv._src.types import ArrayLike, Embedder
 
-try:
-    import transformers  # type: ignore
-
-    transformers.logging.set_verbosity_error()
-except ModuleNotFoundError:
-    transformers = MissingDependency("Transformers", "transformers")  # type: ignore
-try:
-    import torch  # type: ignore
-except ModuleNotFoundError:
-    torch = MissingDependency("PyTorch", "torch")  # type: ignore
+if TYPE_CHECKING:
+    import torch
+    import transformers
+else:
+    transformers = try_import("transformers", "Transformers", "transformers")
+    torch = try_import("torch", "PyTorch", "torch")
 
 
 _DEFAULT_MODEL_NAME = "openai/clip-vit-base-patch32"

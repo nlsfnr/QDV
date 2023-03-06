@@ -13,6 +13,7 @@ type-check: $(VENV) $(PY_FILES)
 	$(PYTHON) -m mypy \
 		--install-types \
 		--non-interactive \
+		--ignore-missing-imports \
 		--pretty \
 		$(PY_FILES)
 
@@ -27,7 +28,9 @@ lint: $(VENV) $(PY_FILES)
 
 .PHONY: test
 test: $(VENV) $(PY_FILES)
-	$(PYTHON) -m pytest $(TEST_DIR)
+	$(PYTHON) -m pytest \
+		--new-first \
+		$(TEST_DIR)
 
 .PHONY: py-deps
 py-deps: $(PIP_FREEZE)

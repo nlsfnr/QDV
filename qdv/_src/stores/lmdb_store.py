@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterator, List, Sequence, Tuple
+from typing import TYPE_CHECKING, Iterator, List, Sequence, Tuple
 
 import numpy as np
 import numpy.typing as npt
 
-from qdv._src.common import MissingDependency, get_logger
+from qdv._src.common import get_logger, try_import
 from qdv._src.types import ArrayLike, Store
 
-try:
-    import lmdb  # type: ignore
-except ModuleNotFoundError:
-    lmdb = MissingDependency("LMDB", "lmdb")  # type: ignore
+if TYPE_CHECKING:
+    import lmdb
+else:
+    lmdb = try_import("lmdb", "LMDB", "lmdb")
 
 logger = get_logger()
 
@@ -47,13 +47,17 @@ class LMDBStore(Store):
         self.environment = lmdb.Environment(
             str(path), readahead=False, meminit=False, subdir=True, map_size=map_size
         )
-        self.dtype = np.dtype(dtype)
+        self._dtype = np.dtype(dtype)
         self._embedding_dim = embedding_dim
 
     @property
     def dim(self) -> int:
         """The dimension of the embeddings."""
         return self._embedding_dim
+
+    @property
+    def dtype(self) -> np.dtype:
+        return self._dtype
 
     def ids(self) -> Iterator[str]:
         """The ids of the embeddings in the store."""

@@ -3,11 +3,11 @@ import pytest
 
 from qdv._src.common import MissingDependency
 
-from .clip_embedder import CLIPImageEmbedder, CLIPTextEmbedder, transformers
+from .clip_embedder import CLIPImageEmbedder, CLIPTextEmbedder, torch, transformers
 
 _skip_if_transformers_not_installed = pytest.mark.skipif(
-    isinstance(transformers, MissingDependency),
-    reason="Transformers not installed",
+    isinstance(transformers, MissingDependency) or isinstance(torch, MissingDependency),
+    reason="Transformers or PyTorch not installed",
 )
 
 

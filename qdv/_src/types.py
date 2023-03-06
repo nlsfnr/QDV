@@ -38,6 +38,10 @@ class Store(Protocol):
     def dim(self) -> int:
         ...
 
+    @property
+    def dtype(self) -> np.dtype:
+        ...
+
     def store(
         self: StoreT,
         ids: Sequence[str],

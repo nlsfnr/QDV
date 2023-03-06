@@ -2,21 +2,19 @@ from __future__ import annotations
 
 import json
 import pickle
+import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Tuple
+from typing import TYPE_CHECKING, Iterable, List, Tuple
 
 import numpy as np
 
-from qdv._src.common import MissingDependency, get_logger
+from qdv._src.common import get_logger, try_import
 from qdv._src.types import ArrayLike, Index, Store
 
 if TYPE_CHECKING:
-    from pynndescent import NNDescent  # type: ignore
+    import pynndescent
 else:
-    try:
-        from pynndescent import NNDescent  # type: ignore
-    except ModuleNotFoundError:
-        NNDescent = MissingDependency("PyNNDescent", "pynndescent")  # type: ignore
+    pynndescent = try_import("pynndescent", "PyNNDescent", "pynndescent")
 
 logger = get_logger()
 
@@ -24,12 +22,12 @@ logger = get_logger()
 class KNNIndex(Index):
     def __init__(
         self,
-        index: NNDescent,
-        id_to_index: Dict[str, int],
+        index: pynndescent.NNDescent,
+        ids: Iterable[str],
     ) -> None:
         self._index = index
-        self._id_to_index = id_to_index
-        self._index_to_id = {v: k for k, v in id_to_index.items()}
+        self.ids = list(ids)
+        self._index_to_id = {i: id for i, id in enumerate(self.ids)}
 
     @property
     def dim(self) -> int:
@@ -50,14 +48,14 @@ class KNNIndex(Index):
         if not path.is_dir():
             raise NotADirectoryError(f"Not a directory: {path}")
         index = _load_index(path)
-        id_to_index = _load_id_to_index(path)
+        ids = _load_ids(path)
         logger.info(f"Loaded index from {path}")
-        return cls(index, id_to_index)
+        return cls(index, ids)
 
     @classmethod
     def from_data(
         cls,
-        ids: List[str],
+        ids: Iterable[str],
         embeddings: ArrayLike,
     ) -> KNNIndex:
         """Create a new index from data.
@@ -69,10 +67,11 @@ class KNNIndex(Index):
         Returns:
             A new index.
         """
-        index = NNDescent(np.asarray(embeddings))
-        id_to_index = {id_: i for i, id_ in enumerate(ids)}
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            index = pynndescent.NNDescent(np.asarray(embeddings))
         logger.info(f"Created new index from {len(embeddings)} samples")
-        return cls(index, id_to_index)
+        return cls(index, ids)
 
     @classmethod
     def from_store(cls, store: Store) -> KNNIndex:
@@ -84,7 +83,7 @@ class KNNIndex(Index):
         Returns:
             A new index.
         """
-        embeddings = np.empty((len(store), store.dim))
+        embeddings = np.empty((len(store), store.dim), dtype=store.dtype)
         ids = []
         index = -1
         for index, (id, embedding) in enumerate(store):
@@ -112,7 +111,7 @@ class KNNIndex(Index):
             if not path.is_dir():
                 raise NotADirectoryError(f"Not a directory: {path}")
         _save_index(self._index, path)
-        _save_id_to_index(self._id_to_index, path)
+        _save_ids(self.ids, path)
         logger.info(f"Saved index to {path}")
         return self
 
@@ -130,32 +129,34 @@ class KNNIndex(Index):
         Returns:
             A tuple of the ids of the neighbors and the distances to the neighbors.
         """
-        indices, distances = self._index.query(embeddings, k=k)
+        embeddings = np.asarray(embeddings)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            indices, distances = self._index.query(embeddings, k=k)
         ids = [[self._index_to_id[i] for i in row] for row in indices]
         return ids, distances
 
 
-def _load_index(path: Path) -> NNDescent:
+def _load_index(path: Path) -> pynndescent.NNDescent:
     with open(path / "index.pkl", "rb") as fh:
         index = pickle.load(fh)
-    assert isinstance(index, NNDescent)
+    assert isinstance(index, pynndescent.NNDescent)
     return index
 
 
-def _load_id_to_index(path: Path) -> Dict[str, int]:
-    with open(path / "id_to_index.json", "r") as fh:
-        id_to_index = json.load(fh)
-    assert isinstance(id_to_index, dict)
-    assert all(isinstance(k, str) for k in id_to_index)
-    assert all(isinstance(v, int) for v in id_to_index.values())
-    return id_to_index
+def _load_ids(path: Path) -> List[str]:
+    with open(path / "ids.json", "r") as fh:
+        ids = json.load(fh)
+    assert isinstance(ids, list)
+    assert all(isinstance(id, str) for id in ids)
+    return ids
 
 
-def _save_index(index: NNDescent, path: Path) -> None:
+def _save_index(index: pynndescent.NNDescent, path: Path) -> None:
     with open(path / "index.pkl", "wb") as fh:
         pickle.dump(index, fh)
 
 
-def _save_id_to_index(id_to_index: Dict[str, int], path: Path) -> None:
-    with open(path / "id_to_index.json", "w") as fh:
-        json.dump(id_to_index, fh)
+def _save_ids(ids: Iterable[str], path: Path) -> None:
+    with open(path / "ids.json", "w") as fh:
+        json.dump(list(ids), fh)

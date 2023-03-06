@@ -1,18 +1,16 @@
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence
 
 import numpy as np
 
-from qdv._src.common import MissingDependency
+from qdv._src.common import try_import
 from qdv._src.types import Embedder
 
-try:
-    import openai  # type: ignore
-except ModuleNotFoundError:
-    openai = MissingDependency("OpenAI", "openai")  # type: ignore
-try:
-    import tiktoken  # type: ignore
-except ModuleNotFoundError:
-    tiktoken = MissingDependency("TikToken", "tiktoken")  # type: ignore
+if TYPE_CHECKING:
+    import openai
+    import tiktoken
+else:
+    openai = try_import("openai", "OpenAI", "openai")
+    tiktoken = try_import("tiktoken", "TikToken", "tiktoken")
 
 _DEFAULT_MODEL_NAME = "text-embedding-ada-002"
 _DEFAULT_TOKENIZER_NAME = "cl100k_base"

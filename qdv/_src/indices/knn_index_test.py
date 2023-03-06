@@ -4,8 +4,14 @@ import numpy as np
 import pytest
 
 from qdv import LMDBStore
+from qdv._src.common import MissingDependency
 
-from .knn_index import KNNIndex
+from .knn_index import KNNIndex, pynndescent
+
+_skip_if_pynndescent_not_installed = pytest.mark.skipif(
+    isinstance(pynndescent, MissingDependency),
+    reason="PyNNDescent not installed",
+)
 
 
 @pytest.fixture
@@ -22,6 +28,7 @@ def index(store: LMDBStore) -> KNNIndex:
     return KNNIndex.from_store(store)
 
 
+@_skip_if_pynndescent_not_installed
 def test_from_data() -> None:
     generator = np.random.default_rng(0)
     embeddings = generator.random((3, 16), dtype=np.float32)
@@ -34,6 +41,7 @@ def test_from_data() -> None:
     assert len(ids_) == 1
 
 
+@_skip_if_pynndescent_not_installed
 def test_from_store(store: LMDBStore) -> None:
     index = KNNIndex.from_store(store)
     assert index.dim == 16
@@ -44,6 +52,7 @@ def test_from_store(store: LMDBStore) -> None:
     assert len(ids) == 1
 
 
+@_skip_if_pynndescent_not_installed
 def test_save_and_load(tmpdir: Path, index: KNNIndex) -> None:
     index.save(Path(tmpdir))
     index2 = KNNIndex.load(Path(tmpdir))
@@ -53,3 +62,16 @@ def test_save_and_load(tmpdir: Path, index: KNNIndex) -> None:
     ids2, distances2 = index2.query(embeddings, 3)
     assert ids1 == ids2
     assert (distances1 == distances2).all()
+
+
+@_skip_if_pynndescent_not_installed
+def test_query() -> None:
+    generator = np.random.default_rng(0)
+    data = generator.random((10, 16), dtype=np.float32)
+    index = KNNIndex.from_data(map(str, range(len(data))), data)
+    ids, distances = index.query([data[4]], 3)
+    assert distances.shape == (1, 3)
+    assert len(ids) == 1
+    assert len(ids[0]) == 3
+    assert ids[0][0] == "4"
+    assert distances[0][0] == 0.0
