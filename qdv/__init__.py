@@ -1,7 +1,7 @@
 from ._src.embedders import CLIPImageEmbedder, CLIPTextEmbedder, OpenAIEmbedder
 from ._src.indices import KNNIndex, LinearSearchIndex
 from ._src.stores import LMDBStore
-from ._src.types import Embedder, Index, Store
+from ._src.types import Embedder, EmbeddingStore, Index
 
 __all__ = (
     "CLIPImageEmbedder",
@@ -12,5 +12,5 @@ __all__ = (
     "LMDBStore",
     "LinearSearchIndex",
     "OpenAIEmbedder",
-    "Store",
+    "EmbeddingStore",
 )

@@ -27,10 +27,10 @@ ArrayLike = Union[
 ]
 
 
-StoreT = TypeVar("StoreT", bound="Store")
+EmbeddingStoreT = TypeVar("EmbeddingStoreT", bound="EmbeddingStore")
 
 
-class Store(Protocol):
+class EmbeddingStore(Protocol):
     def ids(self) -> Iterator[str]:
         """Iterate over the ids of the stored embeddings."""
         ...
@@ -46,10 +46,10 @@ class Store(Protocol):
         ...
 
     def store(
-        self: StoreT,
+        self: EmbeddingStoreT,
         ids: Sequence[str],
         embeddings: ArrayLike,
-    ) -> StoreT:
+    ) -> EmbeddingStoreT:
         """Store the embeddings with the given ids. Overwrites any existing
         embeddings with the same ids."""
         ...
@@ -62,9 +62,9 @@ class Store(Protocol):
         ...
 
     def delete(
-        self: StoreT,
+        self: EmbeddingStoreT,
         ids: Sequence[str],
-    ) -> StoreT:
+    ) -> EmbeddingStoreT:
         """Delete the embeddings with the given ids."""
         ...
 
