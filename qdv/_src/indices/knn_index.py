@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Iterable, List, Tuple
 
 import numpy as np
 
-from qdv._src.common import get_logger, try_import
+from qdv._src.common import get_logger, try_import, validate_embeddings
 from qdv._src.types import ArrayLike, Index, Store
 
 if TYPE_CHECKING:
@@ -129,7 +129,7 @@ class KNNIndex(Index):
         Returns:
             A tuple of the ids of the neighbors and the distances to the neighbors.
         """
-        embeddings = np.asarray(embeddings)
+        embeddings = validate_embeddings(embeddings, self.dim)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             indices, distances = self._index.query(embeddings, k=k)

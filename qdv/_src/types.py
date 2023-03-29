@@ -32,14 +32,17 @@ StoreT = TypeVar("StoreT", bound="Store")
 
 class Store(Protocol):
     def ids(self) -> Iterator[str]:
+        """Iterate over the ids of the stored embeddings."""
         ...
 
     @property
     def dim(self) -> int:
+        """The dimensionality of the stored embeddings."""
         ...
 
     @property
     def dtype(self) -> np.dtype:
+        """The dtype of the stored embeddings."""
         ...
 
     def store(
@@ -47,30 +50,37 @@ class Store(Protocol):
         ids: Sequence[str],
         embeddings: ArrayLike,
     ) -> StoreT:
+        """Store the embeddings with the given ids. Overwrites any existing
+        embeddings with the same ids."""
         ...
 
     def retrieve(
         self,
         ids: Sequence[str],
     ) -> np.ndarray:
+        """Retrieve the embeddings with the given ids."""
         ...
 
     def delete(
         self: StoreT,
         ids: Sequence[str],
     ) -> StoreT:
+        """Delete the embeddings with the given ids."""
         ...
 
     def __iter__(self) -> Iterator[Tuple[str, np.ndarray]]:
+        """Iterate over the stored embeddings."""
         ...
 
     def __len__(self) -> int:
+        """The number of stored embeddings."""
         ...
 
 
 class Index(Protocol):
     @property
     def dim(self) -> int:
+        """The dimensionality of the stored embeddings."""
         ...
 
     def query(
@@ -78,6 +88,7 @@ class Index(Protocol):
         embeddings: ArrayLike,
         k: int,
     ) -> Tuple[Sequence[Sequence[str]], np.ndarray]:
+        """Query the index for the k nearest neighbors of the given embeddings."""
         ...
 
 
@@ -87,7 +98,9 @@ ItemT = TypeVar("ItemT", contravariant=True)
 class Embedder(Protocol, Generic[ItemT]):
     @property
     def dim(self) -> int:
+        """The dimensionality of the embeddings."""
         ...
 
     def __call__(self, items: Sequence[ItemT]) -> np.ndarray:
+        """Embed the given items."""
         ...

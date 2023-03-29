@@ -3,6 +3,10 @@ import logging
 from types import ModuleType
 from typing import Any
 
+import numpy as np
+
+from qdv._src.types import ArrayLike
+
 
 def get_logger() -> logging.Logger:
     """Get the logger for the package.
@@ -42,3 +46,27 @@ def try_import(
         return importlib.import_module(import_str)
     except ImportError:
         return MissingDependency(name, pip_package)
+
+
+def validate_embeddings(
+    embeddings: ArrayLike,
+    dim: int,
+    dtype: np.dtype = np.float32,  # type: ignore
+) -> np.ndarray:
+    if isinstance(embeddings, list) and len(embeddings) == 0:
+        return np.empty(shape=(0, dim), dtype=dtype)
+    if not isinstance(embeddings, np.ndarray):
+        embeddings = np.asarray(embeddings, dtype=dtype)
+    if not np.issubdtype(embeddings.dtype, np.float32):
+        raise TypeError(
+            f"Expected embeddings to have dtype {dtype}, got dtype {embeddings.dtype}"
+        )
+    if embeddings.ndim != 2:
+        raise ValueError(
+            f"Expected embeddings to be 2-dimensional, got shape {embeddings.shape}"
+        )
+    if embeddings.shape[1] != dim:
+        raise ValueError(
+            f"Expected embeddings to have dimension {dim}, got shape {embeddings.shape}"
+        )
+    return embeddings

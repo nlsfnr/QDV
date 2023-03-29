@@ -56,12 +56,13 @@ class OpenAIEmbedder(Embedder[str]):
         """
         items = self._validate_items(items)
         responses = self.create_fn(
-            inputs=items,
+            input=items,
             api_key=self.api_key,
             model=self.model_name,
         )
         embeddings_list = [data["embedding"] for data in responses["data"]]
-        return np.asarray(embeddings_list, dtype=np.float32)
+        embeddings = np.asarray(embeddings_list, dtype=np.float32)
+        return embeddings
 
     def tokenize(self, items: Sequence[str]) -> List[np.ndarray]:
         if self.tokenizer is None:
