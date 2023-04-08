@@ -43,12 +43,9 @@ def query(
     openai_key_path: Optional[Path],
     query: str,
 ) -> None:
-    print(
-        qdv.OpenAIE2ESolution.load(_SAVE_PATH, api_key=openai_key_path).query(
-            query, top_k=5
-        )
-    )
-
+    result = qdv.OpenAIE2ESolution.load(_SAVE_PATH, api_key=openai_key_path)(query, top_k=5)
+    breakpoint()
+    print(result.answer)
 
 def _load_text_store() -> qdv.JsonStore:
     with open(Path(__file__) / "coach-data.json", "r") as f:

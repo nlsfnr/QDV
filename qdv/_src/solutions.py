@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Callable, Iterable, Sequence, Tuple, Union
+from dataclasses import dataclass
 
 from qdv._src.common import get_openai_key
 from qdv._src.embedders import OpenAIEmbedder
@@ -9,6 +10,20 @@ from qdv._src.indices import KNNIndex
 from qdv._src.item_stores import JsonStore
 from qdv._src.lms import OpenAILanguageModel
 from qdv._src.types import Embedder, Index, LanguageModel
+
+
+_DEFAULT_QA_TASK_PROMPT = "Truthful question answering based on top-k documents."
+
+
+@dataclass
+class QASolutionResult:
+    question: str
+    answer: str
+    ids: Tuple[str, ...]
+    texts: Tuple[str, ...]
+    distances: Tuple[float, ...]
+    task_prompt: str
+    prompt: str
 
 
 class QASolution:
@@ -31,27 +46,23 @@ class QASolution:
         question: str,
         top_k: int = 5,
         max_tokens: int = 256,
-        task_prompt: str = "Task: Truthful question answering",
-    ) -> str:
+        task_prompt: str = _DEFAULT_QA_TASK_PROMPT,
+    ) -> QASolutionResult:
         """Answer a question, using the top-k results in the index as context."""
-        return self.call_with_ids(question, top_k, max_tokens, task_prompt)[0]
-
-    def call_with_ids(
-        self,
-        question: str,
-        top_k: int = 5,
-        max_tokens: int = 256,
-        task_prompt: str = "Task: Truthful question answering",
-    ) -> Tuple[str, Iterable[str]]:
-        """Answer a question, using the top-k results in the index as context.
-        Besides the answer, also return the ids of the documents used as
-        context."""
         embeddings = self.embedder([question])
-        ids = self.index.query(embeddings, top_k)[0][0]
+        (ids,), (distances,) = self.index.query(embeddings, top_k)
         texts = self.ids_to_texts(ids)
         prompt = self.prepare_prompt(texts, question, task_prompt)
-        answer = self.language_model.call_and_collect(prompt, max_tokens=max_tokens)
-        return answer.strip(), ids
+        answer = self.language_model.call_and_collect(prompt, max_tokens=max_tokens).strip()
+        return QASolutionResult(
+            question=question,
+            answer=answer,
+            ids=tuple(ids),
+            texts=tuple(texts),
+            distances=tuple(distances),
+            task_prompt=task_prompt,
+            prompt=prompt,
+        )
 
     def prepare_prompt(
         self, texts: Iterable[str], question: str, task_prompt: str
@@ -59,13 +70,18 @@ class QASolution:
         texts = [
             f"[[ DOCUMENT {i + 1} ]]\n\n{t.strip()}\n\n" for i, t in enumerate(texts)
         ]
-        text = "".join(texts)
+        joint_texts = "".join(texts)
         return (
-            f"{task_prompt.strip()}\n\n"
-            f"{text}"
+            f"[[ TASK ]]\n\n{task_prompt.strip()}\n\n"
+            f"{joint_texts}"
             f"[[ QUESTION ]]\n\n{question.strip()}\n\n"
             "[[ ANSWER ]]\n\n"
         )
+
+
+@dataclass
+class OpenAIE2ESolutionResult(QASolutionResult):
+    pass
 
 
 class OpenAIE2ESolution:
@@ -117,18 +133,26 @@ class OpenAIE2ESolution:
             language_model=lm, embedder=embedder, index=index, text_store=text_store
         )
 
-    def query(
+    def __call__(
         self,
-        query: str,
+        question: str,
         top_k: int = 5,
         max_tokens: int = 256,
-        task_prompt: str = "Task: Truthful question answering",
-    ) -> str:
+        task_prompt: str = _DEFAULT_QA_TASK_PROMPT,
+    ) -> OpenAIE2ESolutionResult:
         qa = QASolution(
             language_model=self.language_model,
             embedder=self.embedder,
             index=self.index,
             ids_to_texts=self.text_store.retrieve,
         )
-        answer = qa(query, top_k, max_tokens, task_prompt)
-        return answer
+        answer = qa(question, top_k, max_tokens, task_prompt)
+        return OpenAIE2ESolutionResult(
+            question=answer.question,
+            answer=answer.answer,
+            ids=answer.ids,
+            texts=answer.texts,
+            distances=answer.distances,
+            task_prompt=answer.task_prompt,
+            prompt=answer.prompt,
+        )

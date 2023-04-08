@@ -17,7 +17,7 @@ def cli() -> None:
 @cli.command("add")
 @click.argument("id", type=str)
 @click.argument("text", type=str)
-@click.option("--path", "-p", type=Path, default=Path("./tmp/embed-and-store/"))
+@click.option("--path", "-p", type=Path, default=Path("tmp/embed-and-store/"))
 def cli_add(
     id: str,
     text: str,
@@ -30,7 +30,7 @@ def cli_add(
 
 @cli.command("query")
 @click.argument("text", type=str)
-@click.option("--path", "-p", type=Path, default=Path("./tmp/embed-and-store/"))
+@click.option("--path", "-p", type=Path, default=Path("tmp/embed-and-store/"))
 @click.option("--topk", "-k", type=int, default=5)
 def cli_query(
     text: str,
