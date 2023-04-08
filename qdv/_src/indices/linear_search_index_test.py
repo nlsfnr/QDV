@@ -3,14 +3,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from qdv import LMDBStore
+from qdv import LMDBEmbeddingStore
 
 from .linear_search_index import LinearSearchIndex
 
 
 @pytest.fixture
 def store(tmpdir: Path):
-    store = LMDBStore(Path(tmpdir), 16)
+    store = LMDBEmbeddingStore(Path(tmpdir), 16)
     generator = np.random.default_rng(0)
     embeddings = generator.random((3, 16), dtype=np.float32)
     store.store(["a", "b", "c"], embeddings)
@@ -18,7 +18,7 @@ def store(tmpdir: Path):
 
 
 @pytest.fixture
-def index(store: LMDBStore) -> LinearSearchIndex:
+def index(store: LMDBEmbeddingStore) -> LinearSearchIndex:
     return LinearSearchIndex(store)
 
 

@@ -104,3 +104,52 @@ class Embedder(Protocol, Generic[ItemT]):
     def __call__(self, items: Sequence[ItemT]) -> np.ndarray:
         """Embed the given items."""
         ...
+
+
+class LanguageModel(Protocol):
+    def __call__(
+        self,
+        prompt: str,
+        max_tokens: int,
+    ) -> Iterable[str]:
+        """Generate text from the given prompt and stream the generated text."""
+        ...
+
+    def call_and_collect(
+        self,
+        prompt: str,
+        max_tokens: int,
+    ) -> str:
+        """Generate text from the given prompt and collect the output into a str."""
+        return "".join(self(prompt, max_tokens))
+
+
+ItemTCov = TypeVar("ItemTCov")
+
+
+class ItemStore(Protocol, Generic[ItemTCov]):
+    @property
+    def ids(self) -> Iterable[str]:
+        """Iterate over the ids of the stored items."""
+        ...
+
+    def store(self, ids: Sequence[str], items: Sequence[ItemTCov]) -> None:
+        """Store the items with the given ids. Overwrites any existing
+        items with the same ids."""
+        ...
+
+    def retrieve(self, ids: Sequence[str]) -> Sequence[ItemTCov]:
+        """Retrieve the items with the given ids."""
+        ...
+
+    def delete(self, ids: Sequence[str]) -> None:
+        """Delete the items with the given ids."""
+        ...
+
+    def __iter__(self) -> Iterator[Tuple[str, ItemTCov]]:
+        """Iterate over the stored items."""
+        ...
+
+    def __len__(self) -> int:
+        """The number of stored items."""
+        ...

@@ -1,11 +1,15 @@
 import importlib
 import logging
+import os
+from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, Union
 
 import numpy as np
 
 from qdv._src.types import ArrayLike
+
+_OPENAI_API_KEY_ENV_VAR = "OPENAI_API_KEY"
 
 
 def get_logger() -> logging.Logger:
@@ -70,3 +74,17 @@ def validate_embeddings(
             f"Expected embeddings to have dimension {dim}, got shape {embeddings.shape}"
         )
     return embeddings
+
+
+def get_openai_key(api_key: Union[None, str, Path]) -> str:
+    if api_key is None:
+        if _OPENAI_API_KEY_ENV_VAR not in os.environ:
+            raise ValueError(
+                f"OpenAI API key not provided and environment variable "
+                f"{_OPENAI_API_KEY_ENV_VAR} not set."
+            )
+        return str(os.environ[_OPENAI_API_KEY_ENV_VAR]).strip()
+    if isinstance(api_key, Path):
+        with api_key.open("r") as f:
+            return f.read().strip()
+    return api_key

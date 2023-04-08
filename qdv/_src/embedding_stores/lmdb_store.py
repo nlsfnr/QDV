@@ -20,7 +20,7 @@ _DEFAULT_DTYPE = np.float32
 _DEFAULT_MAP_SIZE = 2**40  # 1TB
 
 
-class LMDBStore(EmbeddingStore):
+class LMDBEmbeddingStore(EmbeddingStore):
     """A store backed by an LMDB database."""
 
     def __init__(
@@ -68,8 +68,8 @@ class LMDBStore(EmbeddingStore):
         self,
         ids: Sequence[str],
         embeddings: ArrayLike,
-    ) -> LMDBStore:
-        """Store embeddings in the store.
+    ) -> LMDBEmbeddingStore:
+        """EmbeddingStore embeddings in the store.
 
         Args:
             ids: The ids of the embeddings.
@@ -115,7 +115,7 @@ class LMDBStore(EmbeddingStore):
     def delete(
         self,
         ids: Sequence[str],
-    ) -> LMDBStore:
+    ) -> LMDBEmbeddingStore:
         """Delete embeddings from the store.
 
         Args:

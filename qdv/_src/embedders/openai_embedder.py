@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
-from qdv._src.common import try_import
+from qdv._src.common import get_openai_key, try_import
 from qdv._src.types import Embedder
 
 if TYPE_CHECKING:
@@ -13,7 +14,6 @@ else:
     tiktoken = try_import("tiktoken", "TikToken", "tiktoken")
 
 _DEFAULT_MODEL_NAME = "text-embedding-ada-002"
-_DEFAULT_TOKENIZER_NAME = "cl100k_base"
 _DEFAULT_EMBEDDING_DIM = 1536
 _DEFAULT_MAX_TOKENS = 8191
 
@@ -21,21 +21,15 @@ _DEFAULT_MAX_TOKENS = 8191
 class OpenAIEmbedder(Embedder[str]):
     def __init__(
         self,
-        api_key: str,
+        api_key: Union[None, str, Path] = None,
         model_name: str = _DEFAULT_MODEL_NAME,
-        tokenizer_name: Optional[str] = _DEFAULT_TOKENIZER_NAME,
         max_tokens: Optional[int] = _DEFAULT_MAX_TOKENS,
         embedding_dim: int = _DEFAULT_EMBEDDING_DIM,
         create_fn: Callable[..., Dict[str, Any]] = openai.Embedding.create,
     ) -> None:
-        self.api_key = api_key
+        self.api_key = get_openai_key(api_key)
         self.model_name = model_name
-        self.tokenizer = (
-            None if tokenizer_name is None else tiktoken.get_encoding(tokenizer_name)
-        )
-        if max_tokens is not None:
-            if tokenizer_name is None:
-                raise ValueError("Cannot specify max_tokens without tokenizer_name")
+        self.tokenizer = tiktoken.encoding_for_model(model_name)
         self.max_tokens = max_tokens
         self.create_fn = create_fn
         self._embedding_dim = embedding_dim
@@ -65,8 +59,6 @@ class OpenAIEmbedder(Embedder[str]):
         return embeddings
 
     def tokenize(self, items: Sequence[str]) -> List[np.ndarray]:
-        if self.tokenizer is None:
-            raise ValueError("Tokenizer not specified")
         tokens = self.tokenizer.encode_batch(list(items))
         return [np.asarray(token, dtype=np.int32) for token in tokens]
 
