@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Iterable, List, Tuple
 import numpy as np
 
 from qdv._src.common import get_logger, try_import, validate_embeddings
-from qdv._src.types import ArrayLike, Index, Store
+from qdv._src.types import ArrayLike, EmbeddingStore, Index
 
 if TYPE_CHECKING:
     import pynndescent
@@ -74,7 +74,7 @@ class KNNIndex(Index):
         return cls(index, ids)
 
     @classmethod
-    def from_store(cls, store: Store) -> KNNIndex:
+    def from_store(cls, store: EmbeddingStore) -> KNNIndex:
         """Create a new index from a store.
 
         Args:

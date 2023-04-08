@@ -24,7 +24,7 @@ def cli_add(
     path: Path,
 ) -> None:
     embedder = qdv.CLIPTextEmbedder()
-    store = qdv.LMDBStore(path, embedding_dim=embedder.dim)
+    store = qdv.LMDBEmbeddingStore(path, embedding_dim=embedder.dim)
     store.store([id], embedder([text]))
 
 
@@ -38,7 +38,7 @@ def cli_query(
     topk: int,
 ) -> None:
     embedder = qdv.CLIPTextEmbedder()
-    store = qdv.LMDBStore(path, embedding_dim=embedder.dim)
+    store = qdv.LMDBEmbeddingStore(path, embedding_dim=embedder.dim)
     index = qdv.LinearSearchIndex(store)
     ids, distances = index.query(embedder([text]), topk)
     print(ids, distances)

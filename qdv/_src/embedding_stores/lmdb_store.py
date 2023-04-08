@@ -7,7 +7,7 @@ import numpy as np
 import numpy.typing as npt
 
 from qdv._src.common import get_logger, try_import
-from qdv._src.types import ArrayLike, Store
+from qdv._src.types import ArrayLike, EmbeddingStore
 
 if TYPE_CHECKING:
     import lmdb
@@ -20,7 +20,7 @@ _DEFAULT_DTYPE = np.float32
 _DEFAULT_MAP_SIZE = 2**40  # 1TB
 
 
-class LMDBStore(Store):
+class LMDBEmbeddingStore(EmbeddingStore):
     """A store backed by an LMDB database."""
 
     def __init__(
@@ -68,8 +68,8 @@ class LMDBStore(Store):
         self,
         ids: Sequence[str],
         embeddings: ArrayLike,
-    ) -> LMDBStore:
-        """Store embeddings in the store.
+    ) -> LMDBEmbeddingStore:
+        """EmbeddingStore embeddings in the store.
 
         Args:
             ids: The ids of the embeddings.
@@ -115,7 +115,7 @@ class LMDBStore(Store):
     def delete(
         self,
         ids: Sequence[str],
-    ) -> LMDBStore:
+    ) -> LMDBEmbeddingStore:
         """Delete embeddings from the store.
 
         Args:

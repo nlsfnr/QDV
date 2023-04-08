@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 
 from qdv._src.common import validate_embeddings
-from qdv._src.types import ArrayLike, Index, Store
+from qdv._src.types import ArrayLike, EmbeddingStore, Index
 
 _DEFAULT_METRIC = "euclidean"
 
@@ -13,7 +13,7 @@ _DEFAULT_METRIC = "euclidean"
 class LinearSearchIndex(Index):
     def __init__(
         self,
-        store: Store,
+        store: EmbeddingStore,
         metric: str = _DEFAULT_METRIC,
     ) -> None:
         self.store = store
